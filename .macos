@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# Mac OS configuration
+#
+# adapted from Jeff Geerling's:
+# https://github.com/geerlingguy/dotfiles/blob/master/.osx
+# and  Mathias Bynens':
+# https://github.com/mathiasbynens/dotfiles/blob/main/.macos
+#
+
+# Warn that some commands will not be run if the script is not run as root.
+if [[ $EUID -ne 0 ]]; then
+  RUN_AS_ROOT=false
+  printf "Certain commands will not be run without sudo privileges. To run as root, run the same command prepended with 'sudo', for example: $ sudo $0\n\n" | fold -s -w 80
+else
+  RUN_AS_ROOT=true
+  # Update existing `sudo` timestamp until `.osx` has finished
+  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+fi
+
+
+# Expand save panel by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+
+# Finder: show all filename extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Finder: show status bar
+defaults write com.apple.finder ShowStatusBar -bool true
+
+# Finder: show path bar
+defaults write com.apple.finder ShowPathbar -bool true
+
+# Keep folders on top when sorting by name
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+
+# Disable the warning when changing a file extension
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+# Avoid creating .DS_Store files on network volumes
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+# Avoid creating .DS_Store files on USB drives
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+# Use column view in all Finder windows by default
+# Four-letter codes for the other view modes: `icnv`, `Nlsv`, `clmv`, `Flwv`
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+
+# Show the ~/Library folder
+chflags nohidden ~/Library && xattr -d com.apple.FinderInfo ~/Library
+
+# Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
+defaults write com.apple.screencapture type -string "png"
+
+# Disable shadow in screenshots
+defaults write com.apple.screencapture disable-shadow -bool true
+
+# Speed up Mission Control animations
+defaults write com.apple.dock expose-animation-duration -float 0.15
+
+# Show the main window when launching Activity Monitor
+defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
+
+# Show all processes in Activity Monitor
+defaults write com.apple.ActivityMonitor ShowCategory -int 0
+
+printf "Please log out and log back in to make all settings take effect.\n"
